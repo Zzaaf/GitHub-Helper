@@ -1,0 +1,25 @@
+{
+  "name": "github-helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "addGroupInRepositories.js",
+  "scripts": {
+    "start": "node addGroupInRepositories.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/core": "^4.0.4",
+    "dotenv": "^16.0.1",
+    "octokit": "^2.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.20.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  }
+}
