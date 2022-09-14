@@ -27,6 +27,6 @@ octokit.request(
           permission: 'admin', // вид прав
         },
       )
-        .then((data) => console.log(data));
+        .then((logData) => console.log(logData));
     });
   });
