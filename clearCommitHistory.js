@@ -18,8 +18,8 @@ octokit.request(
   {
     org: 'Elbrus-Bootcamp',
     type: 'all', // тип выгружаемых репозиториев
-    per_page: 5, // количество выгружаемых репозиториев (100 максимум)
-    page: 2, // пагинация
+    per_page: 1, // количество выгружаемых репозиториев (100 максимум)
+    page: 1, // пагинация
   },
 ).then(async ({ data }) => {
   const dir = './downloadRepos';
@@ -29,8 +29,17 @@ octokit.request(
     fs.mkdirSync(dir);
   }
 
-  data.forEach((repo) => {
-    // если репозиторий не зугржуен в папку downloadRepos
+  // массив элементов которых НЕ должно быть в отфильтрованном массиве
+  const ignoreRepos = ['teacher-map'];
+
+  const dataIgnoreArray = new Set(ignoreRepos);
+
+  // отфильтрованный массив
+  const filteredArray = data.filter((element) => !dataIgnoreArray.has(element.name));
+
+  // перебор отфильтрованного массива
+  filteredArray.forEach((repo) => {
+    // если репозиторий не загружен в папку downloadRepos
     if (!fs.existsSync(path.join(dir, repo.name))) {
       console.log(`Start clone repository: ${repo.name}`);
 
@@ -47,93 +56,33 @@ octokit.request(
         console.log(`stdout: ${stdout}`);
       });
     } else {
+      const arrCommands = [
+        `cd ${dir}/${repo.name} && git checkout --orphan latest_branch`,
+        `cd ${dir}/${repo.name} && git add -A`,
+        `cd ${dir}/${repo.name} && git commit -am "version 1.0"`,
+        `cd ${dir}/${repo.name} && git branch -D main`,
+        `cd ${dir}/${repo.name} && git branch -D master`,
+        `cd ${dir}/${repo.name} && git branch -m main`,
+        // `cd ${dir}/${repo.name} && git push --force-with-lease origin main`,
+      ];
+
       console.log(`Start git commands for: ${repo.name}`);
 
-      // выполнение команд `git ...`
-      exec(`cd ${dir}/${repo.name} && git checkout --orphan latest_branch`, (error, stdout, stderr) => {
-        console.log('Step: 1');
+      // перебор git команд
+      arrCommands.forEach((command, index) => {
+        exec(command, (error, stdout, stderr) => {
+          console.log(`Step: ${index + 1}`);
 
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
-
-      exec(`cd ${dir}/${repo.name} && git add -A`, (error, stdout, stderr) => {
-        console.log('Step: 2');
-
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
-
-      exec(`cd ${dir}/${repo.name} && git commit -am "version 1.0"`, (error, stdout, stderr) => {
-        console.log('Step: 3');
-
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
-
-      exec(`cd ${dir}/${repo.name} && git branch -D main`, (error, stdout, stderr) => {
-        console.log('Step: 4');
-
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
-
-      exec(`cd ${dir}/${repo.name} && git branch -D master`, (error, stdout, stderr) => {
-        console.log('Step: 5');
-
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
-      });
-
-      exec(`cd ${dir}/${repo.name} && git branch -m main`, (error, stdout, stderr) => {
-        console.log('Step: 6');
-
-        if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-        }
-        if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-        }
-        console.log(`stdout: ${stdout}`);
+          if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+          }
+          if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+        });
       });
     }
   });
