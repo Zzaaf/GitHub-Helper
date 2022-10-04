@@ -18,8 +18,8 @@ octokit.request(
   {
     org: 'Elbrus-Bootcamp',
     type: 'all', // тип выгружаемых репозиториев
-    per_page: 1, // количество выгружаемых репозиториев (100 максимум)
-    page: 1, // пагинация
+    per_page: 100, // количество выгружаемых репозиториев (100 максимум)
+    page: 2, // пагинация
   },
 ).then(async ({ data }) => {
   const dir = './downloadRepos';
@@ -30,7 +30,7 @@ octokit.request(
   }
 
   // массив элементов которых НЕ должно быть в отфильтрованном массиве
-  const ignoreRepos = ['teacher-map'];
+  const ignoreRepos = ['teacher-map', 'org-pairs-splitter', 'skeleton-express-mongoose', 'try-html', 'Elbrus-Bootcamp', 'assessment-1b', 'org-scheduler-react', 'assessment-3a', 'denis-exam-2', 'eagles-online-classes-checkpoint', 'assessment-1a-containers', 'assessment-1c-donut'];
 
   const dataIgnoreArray = new Set(ignoreRepos);
 
@@ -41,7 +41,7 @@ octokit.request(
   filteredArray.forEach((repo) => {
     // если репозиторий не загружен в папку downloadRepos
     if (!fs.existsSync(path.join(dir, repo.name))) {
-      console.log(`Start clone repository: ${repo.name}`);
+      // console.log(`Start clone repository: ${repo.name}`);
 
       // выполнение команды `git clone`
       exec(`cd ${dir} && git clone ${repo.ssh_url}`, (error, stdout, stderr) => {
@@ -63,15 +63,15 @@ octokit.request(
         `cd ${dir}/${repo.name} && git branch -D main`,
         `cd ${dir}/${repo.name} && git branch -D master`,
         `cd ${dir}/${repo.name} && git branch -m main`,
-        // `cd ${dir}/${repo.name} && git push --force-with-lease origin main`,
+        `cd ${dir}/${repo.name} && git push --force-with-lease origin main`,
       ];
 
-      console.log(`Start git commands for: ${repo.name}`);
+      // console.log(`Start git commands for: ${repo.name}`);
 
       // перебор git команд
       arrCommands.forEach((command, index) => {
         exec(command, (error, stdout, stderr) => {
-          console.log(`Step: ${index + 1}`);
+          // console.log(`Step: ${index + 1}`);
 
           if (error) {
             console.log(`error: ${error.message}`);
@@ -83,6 +83,11 @@ octokit.request(
           }
           console.log(`stdout: ${stdout}`);
         });
+      });
+
+      // установка ветки по-умолчанию в GitHub
+      octokit.request(`PATCH /repos/Elbrus-Bootcamp/${repo.name}`, {
+        default_branch: 'main',
       });
     }
   });

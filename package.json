@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@octokit/core": "^4.0.4",
+    "@octokit/core": "^4.0.5",
     "dotenv": "^16.0.1",
-    "octokit": "^2.0.4"
+    "octokit": "^2.0.7"
   },
   "devDependencies": {
     "eslint": "^8.20.0",
