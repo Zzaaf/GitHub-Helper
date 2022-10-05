@@ -19,7 +19,7 @@ octokit.request(
     org: 'Elbrus-Bootcamp',
     type: 'all', // тип выгружаемых репозиториев
     per_page: 100, // количество выгружаемых репозиториев (100 максимум)
-    page: 2, // пагинация
+    page: 1, // пагинация
   },
 ).then(async ({ data }) => {
   const dir = './downloadRepos';
@@ -41,8 +41,6 @@ octokit.request(
   filteredArray.forEach((repo) => {
     // если репозиторий не загружен в папку downloadRepos
     if (!fs.existsSync(path.join(dir, repo.name))) {
-      // console.log(`Start clone repository: ${repo.name}`);
-
       // выполнение команды `git clone`
       exec(`cd ${dir} && git clone ${repo.ssh_url}`, (error, stdout, stderr) => {
         if (error) {
@@ -63,16 +61,12 @@ octokit.request(
         `cd ${dir}/${repo.name} && git branch -D main`,
         `cd ${dir}/${repo.name} && git branch -D master`,
         `cd ${dir}/${repo.name} && git branch -m main`,
-        `cd ${dir}/${repo.name} && git push --force-with-lease origin main`,
+        // `cd ${dir}/${repo.name} && git push --force-with-lease origin main`,
       ];
 
-      // console.log(`Start git commands for: ${repo.name}`);
-
       // перебор git команд
-      arrCommands.forEach((command, index) => {
+      arrCommands.forEach((command) => {
         exec(command, (error, stdout, stderr) => {
-          // console.log(`Step: ${index + 1}`);
-
           if (error) {
             console.log(`error: ${error.message}`);
             return;
