@@ -18,7 +18,7 @@ octokit.request(
   {
     org: 'Elbrus-Bootcamp',
     type: 'all', // тип выгружаемых репозиториев
-    per_page: 1, // количество выгружаемых репозиториев (100 максимум)
+    per_page: 25, // количество выгружаемых репозиториев (100 максимум)
     page: 2, // пагинация
   },
 ).then(async ({ data }) => {
@@ -39,8 +39,6 @@ octokit.request(
     .filter((repo) => !dataIgnoreArray.has(repo.name))
     .filter((repo) => repo.default_branch === 'main');
 
-  console.log(filteredArray);
-
   // перебор отфильтрованного массива
   filteredArray.forEach((repo) => {
     // если репозиторий не загружен в папку downloadRepos
@@ -59,9 +57,17 @@ octokit.request(
       });
     } else {
       const arrCommands = [
-        // `cd ${dir}/${repo.name} && git branch master`,
-        // `cd ${dir}/${repo.name} && git branch -m master archive`,
+        // созаём ветку master
+        `cd ${dir}/${repo.name} && git branch master`,
+        // переключаемся на ветку master
+        `cd ${dir}/${repo.name} && git checkout master`,
+        // подтягиваем изменения из репо
+        `cd ${dir}/${repo.name} && git pull origin master --allow-unrelated-histories`,
+        // переименование ветки master в archive
+        `cd ${dir}/${repo.name} && git branch -m master archive`,
+        // отправка ветки archive в удалённый репозиторий
         // `cd ${dir}/${repo.name} && git push origin archive`,
+        // удаление ветки master из удалённого репозитория
         // `cd ${dir}/${repo.name} && git push -d origin master`,
       ];
 
